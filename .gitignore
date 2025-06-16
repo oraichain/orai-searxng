@@ -26,7 +26,7 @@ searx/version_frozen.py
 .dir-locals.el
 
 .python-version
-
+*.ipynb
 logs
 __pycache__
 .env
