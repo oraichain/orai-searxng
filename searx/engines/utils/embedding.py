@@ -1,18 +1,14 @@
 from typing import Optional
 from openai import OpenAI, OpenAIError
-from dotenv import load_dotenv
 from typing import List, Union
-import os
 import logging
 
-load_dotenv()
 
 logger = logging.getLogger(__name__)
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 class EmbeddingService:
     """Service for generating text embeddings using OpenAI-compatible API"""
 
-    def __init__(self, model: str = "text-embedding-3-small", api_key: Optional[str] = OPENAI_API_KEY):
+    def __init__(self, model: str = "text-embedding-3-small", api_key: Optional[str] = None):
         """
         Initialize the embedding service
 

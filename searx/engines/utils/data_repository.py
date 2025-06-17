@@ -6,7 +6,7 @@ from .mongodb import MongoDB
 
 logger = logging.getLogger(__name__)
 class DataRepository:
-    def __init__(self, mongodb: MongoDB):
+    def __init__(self, mongodb: MongoDB,collection_name: str):
         """
         Initialize the semantic question repository
 
@@ -15,7 +15,7 @@ class DataRepository:
             embedding_service: Embedding service for generating vectors
         """
         self.mongodb = mongodb
-        self.collection_name = "data_markdowns"
+        self.collection_name = collection_name
 
     def get_collection(self):
         """Get the MongoDB collection"""
@@ -32,10 +32,8 @@ class DataRepository:
             if not category_id or not category_id.strip():
                 raise ValueError("category_id không được để trống")
 
-            # Xây dựng điều kiện truy vấn
             query = {"category_id": category_id.strip()}
 
-            # Thêm điều kiện thời gian nếu có
             if start_time or end_time:
                 time_query = {}
                 if start_time:
@@ -45,17 +43,14 @@ class DataRepository:
                 if time_query:
                     query["created_at"] = time_query
 
-            # Thực hiện truy vấn và sắp xếp theo thời gian giảm dần (mới nhất trước)
             collection = self.get_collection()
             cursor = collection.find(query).limit(limit).sort("created_at", -1)
 
-            # Xử lý kết quả, các bản ghi đã được sắp xếp từ mới đến cũ
             results = []
             for doc in cursor:
                 doc['_id'] = str(doc['_id'])
                 results.append(doc)
 
-            # Kết quả đã được sắp xếp với index 0 là bản ghi mới nhất
             return results
 
         except Exception as e:

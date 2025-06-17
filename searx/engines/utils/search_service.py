@@ -1,23 +1,17 @@
-import os
-import json
 from typing import Optional
-from dotenv import load_dotenv
 from .mongodb import MongoDB
 from .data_repository import DataRepository
 from .defi_semantic_question_repository import DefiSemanticQuestionRepository
 from .embedding import EmbeddingService
 from .logger import get_logger
 
-load_dotenv()
-
-MONGO_CONNECTION_STRING = os.getenv("MONGO_CONNECTION_STRING")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
 class SearchService:
     def __init__(
         self,
-        mongodb_uri: Optional[str] = MONGO_CONNECTION_STRING,
-        openai_api_key: Optional[str] = OPENAI_API_KEY
+        mongodb_uri: Optional[str] = None,
+        openai_api_key: Optional[str] = None,
+        collection_name: Optional[str] = None,
+        collection_vector: Optional[str] = None
     ):
         self.logger = get_logger()
         try:
@@ -33,9 +27,10 @@ class SearchService:
             )
             self.question_repo = DefiSemanticQuestionRepository(
                 mongodb=self.mongo_db,
-                embedding_service=self.embedding_service
+                embedding_service=self.embedding_service,
+                collection_vector=collection_vector
             )
-            self.data_repo = DataRepository(mongodb=self.mongo_db)
+            self.data_repo = DataRepository(mongodb=self.mongo_db,collection_name=collection_name)
 
         except Exception as e:
             self.logger.exception("Error during SearchService initialization: %s", str(e))
