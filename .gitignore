@@ -31,3 +31,4 @@ logs
 __pycache__
 .env
 searxng/*
+settings.yml
