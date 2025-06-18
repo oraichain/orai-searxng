@@ -1,0 +1,18 @@
+services:
+  searxng:
+    image: localhost/searxng/searxng:latest
+    volumes:
+      - ./searxng:/etc/searxng:rw
+      - ./settings.yml:/etc/searxng/settings.yml:ro
+    ports:
+      - 4000:8080
+    networks:
+      - perplexica-network
+    restart: unless-stopped
+
+networks:
+  perplexica-network:
+
+volumes:
+  backend-dbstore:
+  uploads:

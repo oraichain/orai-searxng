@@ -30,3 +30,4 @@ searx/version_frozen.py
 logs
 __pycache__
 .env
+searxng/*

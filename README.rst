@@ -134,3 +134,7 @@ You can contribute from your browser using `GitHub Codespaces`_:
 
 
 make docker.build 
+
+update setting.yml
+
+docker compose up -d
