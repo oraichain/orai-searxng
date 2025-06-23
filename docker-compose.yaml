@@ -3,6 +3,7 @@ services:
     image: localhost/searxng/searxng:latest
     volumes:
       - ./searxng:/etc/searxng:rw
+      - ./searx:/usr/local/searxng/searx:rw
 
     ports:
       - 4000:8080
