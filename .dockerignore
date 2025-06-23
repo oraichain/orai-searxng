@@ -42,3 +42,5 @@ dist/
 local/
 gh-pages/
 *.egg-info/
+
+.env

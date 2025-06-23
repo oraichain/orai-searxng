@@ -3,10 +3,35 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # shellcheck disable=SC2059,SC1117
 
-# ubuntu, debian, arch, fedora, centos ...
-DIST_ID=$(source /etc/os-release; echo "$ID");
-# shellcheck disable=SC2034
-DIST_VERS=$(source /etc/os-release; echo "$VERSION_ID");
+# macOS compatibility fixes
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    # Create a temporary os-release file for macOS compatibility
+    if [[ ! -f /etc/os-release ]]; then
+        if [[ ! -d /tmp/etc ]]; then
+            mkdir -p /tmp/etc
+        fi
+        cat > /tmp/etc/os-release <<EOF
+ID=darwin
+VERSION_ID=$(sw_vers -productVersion)
+EOF
+        export DIST_ID="darwin"
+        export DIST_VERS=$(sw_vers -productVersion)
+    fi
+
+    # Create sha256sum command as alias for shasum -a 256 on macOS
+    if ! command -v sha256sum >/dev/null 2>&1; then
+        sha256sum() {
+            shasum -a 256 "$@"
+        }
+        export -f sha256sum
+    fi
+else
+    # Original Linux behavior
+    # ubuntu, debian, arch, fedora, centos ...
+    DIST_ID=$(source /etc/os-release; echo "$ID");
+    # shellcheck disable=SC2034
+    DIST_VERS=$(source /etc/os-release; echo "$VERSION_ID");
+fi
 
 ADMIN_NAME="${ADMIN_NAME:-$(git config user.name)}"
 ADMIN_NAME="${ADMIN_NAME:-$USER}"

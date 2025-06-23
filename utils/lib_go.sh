@@ -20,6 +20,14 @@
 # shellcheck source=utils/lib.sh
 . /dev/null
 
+# macOS compatibility fix for sha256sum
+if [[ "$(uname -s)" == "Darwin" ]] && ! command -v sha256sum >/dev/null 2>&1; then
+    sha256sum() {
+        shasum -a 256 "$@"
+    }
+    export -f sha256sum
+fi
+
 # configure golang environment
 # ----------------------------
 
