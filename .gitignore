@@ -5,6 +5,7 @@
 *~
 *.swp
 geckodriver.log
+.venv
 
 .coverage
 coverage/

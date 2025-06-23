@@ -4,12 +4,12 @@ from .data_repository import DataRepository
 from .defi_semantic_question_repository import DefiSemanticQuestionRepository
 from .embedding import EmbeddingService
 from .logger import get_logger
+from .llm import LLM
+from .schema import Message
 
 from typing import Tuple, List, Dict, Any
 
-
-
-def truncate_content(content: str, max_chars: int | None = None) -> str:
+def truncate_content(content: str, max_chars: Optional[int] = None) -> str:
     if max_chars is None or len(content) <= max_chars or max_chars < 0:
         return content
     half = max_chars // 2
