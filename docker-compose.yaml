@@ -2,16 +2,17 @@ services:
   searxng:
     image: localhost/searxng/searxng:latest
     volumes:
-      - ./searxng:/etc/searxng:rw
-      - ./settings.yml:/etc/searxng/settings.yml:ro
+      - /opt/orai-searxng/searxng:/etc/searxng
+        #- /opt/orai-searxng/settings.yml:/etc/searxng/settings.yml
     ports:
-      - 4000:8080
+      - 8666:8080
     networks:
-      - perplexica-network
+      - distilledstg_backend_net
     restart: unless-stopped
 
 networks:
-  perplexica-network:
+  distilledstg_backend_net:
+    external: true
 
 volumes:
   backend-dbstore:
