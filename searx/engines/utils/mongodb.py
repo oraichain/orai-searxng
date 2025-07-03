@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 import logging
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ class MongoDB:
             self.client.close()
             logger.info("MongoDB connection closed")
 
-    def get_collection(self, collection_name: str):
+    def get_collection(self, collection_name: Optional[str] = None):
         """Get the MongoDB collection"""
         if self.client is None:
             raise RuntimeError("MongoDB client not connected. Call connect() first.")

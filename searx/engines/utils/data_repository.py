@@ -6,7 +6,7 @@ from .mongodb import MongoDB
 
 logger = logging.getLogger(__name__)
 class DataRepository:
-    def __init__(self, mongodb: MongoDB,collection_name: str):
+    def __init__(self, mongodb: MongoDB,collection_name: Optional[str] = None):
         """
         Initialize the semantic question repository
 

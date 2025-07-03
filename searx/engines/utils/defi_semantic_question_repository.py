@@ -18,7 +18,7 @@ class SemanticQuestionData(BaseModel):
 class DefiSemanticQuestionRepository:
     """Specialized repository for DeFi semantic questions with embedding support"""
 
-    def __init__(self, mongodb, embedding_service=None, collection_vector: str = None):
+    def __init__(self, mongodb, embedding_service=None, collection_vector: Optional[str] = None):
         """
         Initialize the semantic question repository
 
