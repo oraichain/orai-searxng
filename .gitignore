@@ -33,3 +33,6 @@ __pycache__
 .env
 searxng/*
 settings.yml
+
+
+docker-compose.yml
