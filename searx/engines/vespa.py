@@ -28,7 +28,8 @@ import logging
 from typing import List, Dict, Any, Optional
 from searx.result_types import EngineResults
 from searx.engines.utils.llm import LLM
-
+import requests
+import json
 
 
 
@@ -37,6 +38,7 @@ engine_type = 'offline'
 openai_api_key: str
 _llm: Optional[LLM] = None
 model: Optional[str] = None
+vespa_uri: Optional[str] = None
 
 
 # Updated logger name to reflect the new engine name
@@ -60,6 +62,23 @@ def init(engine_settings: Dict[str, Any]) -> None:
     connect()
 
     logger.info("Initializing vespa. All results will be hardcoded.")
+
+def query_specialize_case(query_type):
+    global vespa_uri
+    try:
+        payload = json.dumps({
+            "usecase": query_type,
+            "limit": 1
+        })
+        headers = {
+            'accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+        response = requests.request("POST", vespa_uri, headers=headers, data=payload)
+        markdown_response = response.json()['result'][0]['fields']['value']
+    except:
+        markdown_response = ""
+    return markdown_response
 
 
 def connect() -> None:
@@ -143,8 +162,20 @@ Your task is return type of user's query in json format as below, without explai
         prompt=prompt,
         default_response={"query_type": "other"}
     )
-    data = [json_response]
-    return data
+
+    query_type = json_response['query_type']
+    markdown_response = ""
+    if query_type == "other":
+        return []
+    elif query_type == "potential_meme_token":
+        markdown_response = query_specialize_case(query_type="meme")
+    elif query_type == "stablecoin_yield_farming":
+        markdown_response = query_specialize_case(query_type="stable")
+    elif query_type == "whale_analysis":
+        markdown_response = query_specialize_case(query_type="whale")
+
+    response_data = [{"value": markdown_response}]
+    return response_data
 
 
 def search(query: str, params: Dict[str, Any]) -> EngineResults:
