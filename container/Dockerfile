@@ -4,8 +4,7 @@ COPY ./requirements.txt ./requirements.txt
 
 RUN --mount=type=cache,id=pip,target=/root/.cache/pip python -m venv ./venv \
  && . ./venv/bin/activate \
- && pip install -r requirements.txt \
- && pip install "uwsgi~=2.0"
+ && pip install -r requirements.txt
 
 COPY ./searx/ ./searx/
 
