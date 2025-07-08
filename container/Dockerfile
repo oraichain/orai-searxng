@@ -2,6 +2,11 @@ FROM ghcr.io/searxng/base:searxng-builder AS builder
 
 COPY ./requirements.txt ./requirements.txt
 
+RUN apk add --no-cache \
+    build-base \
+    linux-headers \
+    python3-dev
+
 RUN --mount=type=cache,id=pip,target=/root/.cache/pip python -m venv ./venv \
  && . ./venv/bin/activate \
  && pip install -r requirements.txt \
