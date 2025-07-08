@@ -14,7 +14,7 @@ class Logger:
 
     def __init__(
         self,
-        name: str = "thesis-data-platform",
+        name: str = "search-engine",
         level: Union[str, int] = logging.INFO,
         log_to_file: bool = True,
         log_dir: str = "logs",
@@ -52,21 +52,23 @@ class Logger:
         logger = logging.getLogger(self.name)
         logger.setLevel(self.level)
 
-        # Clear existing handlers to avoid duplicates
-        logger.handlers.clear()
+        # Chỉ add handler nếu logger chưa có handler
+        if not logger.handlers:
+            # Console handler
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setLevel(self.level)
+            console_formatter = logging.Formatter(self.console_format)
+            console_handler.setFormatter(console_formatter)
+            logger.addHandler(console_handler)
 
-        # Console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(self.level)
-        console_formatter = logging.Formatter(self.console_format)
-        console_handler.setFormatter(console_formatter)
-        logger.addHandler(console_handler)
+            # File handler (if enabled)
+            if self.log_to_file:
+                file_handler = self._create_file_handler()
+                if file_handler:
+                    logger.addHandler(file_handler)
 
-        # File handler (if enabled)
-        if self.log_to_file:
-            file_handler = self._create_file_handler()
-            if file_handler:
-                logger.addHandler(file_handler)
+        # Tắt propagate để không log lên root logger
+        logger.propagate = False
 
         return logger
 
@@ -132,27 +134,15 @@ _default_logger = None
 
 
 def get_logger(
-    name: str = "thesis-data-platform",
+    name: str = "search-engine",
     level: Union[str, int] = logging.INFO,
     **kwargs
 ) -> Logger:
     """
-    Get a logger instance. Creates a default logger if none exists.
-
-    Args:
-        name: Logger name
-        level: Logging level
-        **kwargs: Additional arguments for Logger initialization
-
-    Returns:
-        Logger instance
+    Get a logger instance. Always returns a new Logger for each name.
+    Ensures no duplicate handlers.
     """
-    global _default_logger
-
-    if _default_logger is None:
-        _default_logger = Logger(name=name, level=level, **kwargs)
-
-    return _default_logger
+    return Logger(name=name, level=level, **kwargs)
 
 
 def setup_logger(
