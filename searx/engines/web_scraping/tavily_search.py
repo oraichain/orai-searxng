@@ -3,25 +3,26 @@ import os
 from dotenv import load_dotenv
 import time
 from searx.engines.utils.logger import get_logger
+from searx.engines.web_scraping.crawler import BaseCrawler
 load_dotenv()
 
-class TavilySearch():
+class TavilyCrawler(BaseCrawler):
     def __init__(self):
         self.logger = get_logger()
         self.client = AsyncTavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
     
-    async def crawl(self, url: str, **kwargs) -> str:
+    async def crawl(self, url: str) -> str:
         start = time.monotonic()
-        res = await self.client.extract([url])
+        result = await self.client.extract([url])
         elapsed = time.monotonic() - start
         self.logger.info(f"TavilySearch.extract: url={url} took {elapsed:.3f}s")
-        return res
+        return result['results'][0]['raw_content']
     
-    async def search(self, query: str, **kwargs) -> str:
+    async def search(self, query: str) -> str:
         start = time.monotonic()
-        res = await self.client.search(query)
+        result = await self.client.search(query)
         elapsed = time.monotonic() - start
         self.logger.info(f"TavilySearch.search: query={query} took {elapsed:.3f}s")
-        return res
+        return result['results'][0]['content']
 
 

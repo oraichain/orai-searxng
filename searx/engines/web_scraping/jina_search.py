@@ -1,5 +1,4 @@
 import httpx
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
@@ -7,7 +6,8 @@ import requests
 from typing import Optional, Any
 import time
 from searx.engines.utils.logger import get_logger
-
+import asyncio
+from searx.engines.web_scraping.crawler import BaseCrawler
 logger = get_logger()
 load_dotenv()
 
@@ -25,30 +25,29 @@ class JINASettings(BaseSettings):
     )
 
 jina_settings = JINASettings()
-
 client = AsyncOpenAI(api_key=jina_settings.api_key, base_url=jina_settings.base_url)
 
+async def extract_with_jina(url: str) -> Optional[str]:
+    """Extract text using Jina AI reader service (async version)."""
+    logger.info(f"Attempting async Jina AI extraction for: {url}")
+    jina_url = f"https://r.jina.ai/{url}"
 
-def extract_with_jina(url: str) -> Optional[str]:
-    """Extract text using Jina AI reader service."""
+    headers = {
+        'Authorization': f'Bearer {jina_settings.jina_key}',
+        'X-Engine': 'cf-browser-rendering',
+        'X-Return-Format': 'markdown'
+    }
+
     try:
-        logger.info(f"Attempting Jina AI extraction for: {url}")
-        url = f"https://r.jina.ai/{url}"
-        payload = {}
-        headers = {
-            'Authorization': f'Bearer {jina_settings.jina_key}',
-            'X-Engine': 'cf-browser-rendering',
-            'X-Return-Format': 'markdown'
-        }
-        response = requests.request("GET", url, headers=headers, data=payload)
-        if response.status_code == 200 and response.text.strip():
-            return response.text.strip()
-        else:
-            logger.warning(f"Jina AI: Request failed with status {response.status_code}")
-            return None
-
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.get(jina_url, headers=headers)
+            if response.status_code == 200 and response.text.strip():
+                return response.text.strip()
+            else:
+                logger.warning(f"Jina AI: Request failed with status {response.status_code}")
+                return None
     except Exception as e:
-        logger.error(f"Jina AI extraction failed for {url}: {str(e)}")
+        logger.error(f"Async Jina AI extraction failed for {url}: {str(e)}")
         return None
 
 async def search_web_content_based_on_keywords(keywords, top_k=5) -> str:
@@ -88,30 +87,25 @@ async def search_web_content_based_on_keywords(keywords, top_k=5) -> str:
         pass
     return response.text
 
-class JinaSearch:
+class JinaCrawler(BaseCrawler):
     def __init__(self):
         self.logger = get_logger()
 
-    async def crawl(self, url: str, **kwargs) -> Optional[str]:
+    async def crawl(self, url: str) -> Optional[str]:
         start = time.monotonic()
         try:
-            # extract_with_jina là sync, nên chạy trong executor
-            import asyncio
-            loop = asyncio.get_event_loop()
-            content = await loop.run_in_executor(None, extract_with_jina, url)
+            content = await extract_with_jina(url)
             elapsed = time.monotonic() - start
             if content:
-                self.logger.info(f"JinaSearch.crawl: Success, took {elapsed:.3f}s")
+                self.logger.info(f"JinaCrawler: Success, took {elapsed:.3f}s")
                 return content
             else:
-                self.logger.warning(f"JinaSearch.crawl: No content found, took {elapsed:.3f}s")
-                return None
+                self.logger.warning(f"JinaCrawler: Empty result, took {elapsed:.3f}s")
         except Exception as e:
-            elapsed = time.monotonic() - start
-            self.logger.error(f"JinaSearch.crawl: Failed for {url}: {str(e)}, took {elapsed:.3f}s")
-            return None
+            self.logger.error(f"JinaCrawler: Failed for {url}: {str(e)}")
+        return None
 
-    async def search(self, query: str, top_k: int = 5, **kwargs) -> Any:
+    async def search(self, query: str, top_k: int = 5) -> Any:
         start = time.monotonic()
         try:
             result = await search_web_content_based_on_keywords(query, top_k=top_k)
@@ -122,5 +116,3 @@ class JinaSearch:
             elapsed = time.monotonic() - start
             self.logger.error(f"JinaSearch.search: Failed for {query}: {str(e)}, took {elapsed:.3f}s")
             return None
-
-jina_search = JinaSearch()

@@ -1,26 +1,22 @@
 from crawl4ai import AsyncWebCrawler
+from searx.engines.utils.logger import get_logger
+from searx.engines.web_scraping.crawler import BaseCrawler
 from typing import Optional
 import time
-from searx.engines.utils.logger import get_logger
 
-class Crawl4aiSearch():
+class Crawl4aiCrawler(BaseCrawler):
     def __init__(self):
         self.logger = get_logger()
 
-    async def crawl(self, url: str, **kwargs) -> Optional[str]:
+    async def crawl(self, url: str) -> Optional[str]:
         start = time.monotonic()
         try:
-            self.logger.info(f"Crawl4aiSearch.extract: Attempting extraction for: {url}")
+            self.logger.info(f"Crawl4aiPlugin: Attempting extraction for: {url}")
             async with AsyncWebCrawler() as crawler:
                 result = await crawler.arun(url=url)
-                elapsed = time.monotonic() - start
                 if result and result.markdown:
-                    self.logger.info(f"Crawl4aiSearch.extract: Success, took {elapsed:.3f}s")
+                    self.logger.info(f"Crawl4aiPlugin: Success")
                     return result.markdown.strip()
-                else:
-                    self.logger.warning(f"Crawl4aiSearch.extract: No markdown content found, took {elapsed:.3f}s")
-                    return None
         except Exception as e:
-            elapsed = time.monotonic() - start
-            self.logger.error(f"Crawl4aiSearch.extract: Failed for {url}: {str(e)}, took {elapsed:.3f}s")
-            return None
+            self.logger.error(f"Crawl4aiPlugin: Failed for {url}: {str(e)}")
+        return None

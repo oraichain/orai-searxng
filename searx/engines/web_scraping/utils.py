@@ -1,13 +1,20 @@
 import concurrent.futures
 import asyncio
+from typing import List, Dict, Any
+from pathlib import Path
+import json
+import requests
 
-def execute_multithreading_functions(functions, timeout=300):
+def execute_multithreading_functions(functions: List[Dict[str, Any]], timeout: int = 300) -> List[Any]:
     """
     Execute multiple functions in parallel using ThreadPoolExecutor.
-    Each function is a dict {'fn': function, 'args': dict}.
-    Return a list of results in the same order.
-    If timeout, raise Exception.
-    If a function fails, return the exception object at that position.
+
+    Args:
+        functions: List of dicts, each containing a function and its arguments.
+        timeout: Timeout in seconds.
+
+    Returns:
+        List of results in the same order.
     """
     try:
         results = []
@@ -23,13 +30,19 @@ def execute_multithreading_functions(functions, timeout=300):
     except Exception as e:
         raise Exception(f"Error executing multithreading functions: {e}")
 
-async def execute_async_functions(functions, timeout=300):
+async def execute_async_functions(functions, timeout=30):
     """
     Execute multiple async functions in parallel.
-    Each element in functions is a dict {'fn': async function, 'args': dict}.
-    Return a list of results in the same order.
-    If timeout, raise Exception.
-    If a function fails, return the exception object at that position.
+
+    Args:
+        functions: List of dicts, each containing an async function and its arguments.
+        timeout: Timeout in seconds.
+
+    Returns:
+        List of results in the same order.
+
+    Raises:
+        Exception: If the function execution times out.
     """
     async def run_fn(fn, args):
         try:
@@ -44,3 +57,31 @@ async def execute_async_functions(functions, timeout=300):
         raise Exception("Async function execution timed out")
 
 
+def save_to_json_file(data: Any, file_name: str) -> None:
+    """
+    Save data to a file.
+
+    Args:
+        data: Data to save.
+        file_name: Name of the file to save.
+    """
+    path = Path("searx/engines/web_scraping/output")
+    path.mkdir(parents=True, exist_ok=True)
+    path = path / file_name
+    with open(path, "w") as f:
+        json.dump(data, f)
+
+
+def call_searxng_api(query: str) -> Dict[str, Any]:
+    """
+    Call the searxng API to search for a query.
+
+    Args:
+        query: Query to search for.
+
+    Returns:
+        Raw JSON response from SearXNG
+    """
+    url = f"http://148.113.35.59:8666/search?format=json&q={query}"
+    response = requests.get(url)
+    return response.json()

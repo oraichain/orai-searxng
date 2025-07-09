@@ -1,39 +1,39 @@
-from searx.engines.web_scraping.tavily_search import TavilySearch
-from searx.engines.web_scraping.crawl4ai_search import Crawl4aiSearch
-from searx.engines.web_scraping.jina_search import JinaSearch
-from searx.engines.web_scraping.benchmark import benchmark_bulk_extract
+from searx.engines.web_scraping.tavily_search import TavilyCrawler
+from searx.engines.web_scraping.crawl4ai_search import Crawl4aiCrawler
+from searx.engines.web_scraping.jina_search import JinaCrawler
+from searx.engines.web_scraping.utils import call_searxng_api
 import asyncio
 import json
 from pathlib import Path
 import time
+from searx.engines.web_scraping.utils import save_to_json_file
+from searx.engines.web_scraping.crawler import AsyncWebCrawler
 
-
-tavily_search = TavilySearch()
-crawl4ai_search = Crawl4aiSearch()
-jina_search = JinaSearch()
+plugin = TavilyCrawler()
 
 async def main():
-    query = "python" 
-    path = Path("searx/engines/web_scraping/output")
-    path.mkdir(parents=True, exist_ok=True)
+    query = "Bitcoin price"
+    
+    # Gọi SearXNG API
+    response_data = call_searxng_api(query)
 
-    response_path = path / "response.json"
-    if not response_path.exists():
-        print(f"{response_path} not found. Please run search and save results to response.json first.")
+    # Lấy danh sách URL từ kết quả
+    urls = [item["url"] for item in response_data.get("results", []) if "url" in item]
+    print(f"[INFO] Found {len(urls)} URLs from SearXNG for query: '{query}'")
+
+    # Nếu không có URL, dừng lại
+    if not urls:
+        print("[WARN] No URLs found in SearXNG response.")
         return
 
-    with open(response_path, "r") as f:
-        response_data = json.load(f)
-    urls = [item["url"] for item in response_data.get("results", []) if "url" in item]
-    print(f"Found {len(urls)} urls to crawl with JinaSearch.")
+    # Crawler
+    crawler = AsyncWebCrawler(plugin=plugin, max_concurrency=20)
+    results = await crawler.crawl_many(urls)
 
-    # Benchmark crawl all urls with JinaSearch
-    result = await benchmark_bulk_extract(jina_search, urls)
-    elapsed = result["elapsed"]
-    print(f"Bulk JinaSearch crawl for {len(urls)} urls took {elapsed:.3f}s")
+    for url, content in zip(urls, results):
+        print(f"\n--- {url} ---")
+        print(content[:500] if content else "None, ❌ Failed to extract content")
 
-    with open(path / "jina_bulk_crawl.json", "w") as f:
-        json.dump(result, f)
 
 if __name__ == "__main__":
     asyncio.run(main())
