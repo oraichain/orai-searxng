@@ -7,7 +7,7 @@ from typing import Optional, Any
 import time
 from searx.engines.utils.logger import get_logger
 import asyncio
-from searx.engines.web_scraping.crawler import BaseCrawler
+from web_scraping.crawl_services.base import BaseCrawler
 logger = get_logger()
 load_dotenv()
 

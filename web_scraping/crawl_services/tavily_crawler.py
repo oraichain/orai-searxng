@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 import time
 from searx.engines.utils.logger import get_logger
-from searx.engines.web_scraping.crawler import BaseCrawler
+from web_scraping.crawl_services.base import BaseCrawler
 load_dotenv()
 
 class TavilyCrawler(BaseCrawler):

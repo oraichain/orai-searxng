@@ -1,6 +1,6 @@
 from crawl4ai import AsyncWebCrawler
 from searx.engines.utils.logger import get_logger
-from searx.engines.web_scraping.crawler import BaseCrawler
+from web_scraping.crawl_services.base import BaseCrawler
 from typing import Optional
 import time
 

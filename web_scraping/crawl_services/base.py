@@ -23,7 +23,7 @@ class BaseCrawler(ABC):
         pass
 
 class AsyncWebCrawler:
-    def __init__(self, plugin: BaseCrawler, max_concurrency: int = 40):
+    def __init__(self, plugin: BaseCrawler, max_concurrency: int = 40, timeout: int = 5):
         self.plugin = plugin
         self.semaphore = asyncio.Semaphore(max_concurrency)
         self.logger = get_logger()
@@ -34,8 +34,8 @@ class AsyncWebCrawler:
             retry_if_exception_type((IndexError, httpx.RequestError, httpx.TimeoutException, ValueError))
         ),
         wait=wait_exponential(multiplier=1, min=2, max=30),
-        stop=stop_after_attempt(5),
-        after=after_log(get_logger().logger, log_level="WARNING"),
+        stop=stop_after_attempt(3),
+        after=after_log(get_logger().logger, log_level=logging.WARNING),
         reraise=True
     )
     async def _crawl_one_with_retry(self, url: str) -> Optional[str]:

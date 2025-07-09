@@ -2,10 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 
-from searx.engines.web_scraping.tavily_search import TavilyCrawler
-from searx.engines.web_scraping.utils import call_searxng_api
-from searx.engines.web_scraping.crawler import AsyncWebCrawler
-from searx.engines.web_scraping.models import ScrapingRequest, ScrapedItem, SearchRequest, SearchResponse
+from web_scraping.crawl_services.tavily_crawler import TavilyCrawler
+from web_scraping.crawl_services.crawl4ai_crawler import Crawl4aiCrawler
+from web_scraping.crawl_services.jina_crawler import JinaCrawler
+from web_scraping.utils import call_searxng_api
+from web_scraping.crawl_services.base import AsyncWebCrawler
+from web_scraping.models import ScrapingRequest, ScrapedItem, SearchRequest, SearchResponse
 
 app = FastAPI(title="Scraping Service")
 
@@ -19,10 +21,14 @@ app.add_middleware(
 
 plugin = TavilyCrawler()
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 @app.post("/crawl", response_model=List[ScrapedItem])
 async def crawl_api(request: ScrapingRequest):
     crawler = AsyncWebCrawler(plugin=plugin, max_concurrency=10)
-    results = await crawler.crawl_many(urls)
+    results = await crawler.crawl_many(request.urls)
     return [{"url": url, "content": content} for url, content in zip(request.urls, results)]
 
 @app.post("/search", response_model=SearchResponse)
@@ -35,7 +41,8 @@ async def search_api(request: SearchRequest):
 
     # Crawl content
     if urls:
-        contents = await crawl_urls(urls)
+        crawler = AsyncWebCrawler(plugin=plugin, max_concurrency=40)
+        contents = await crawler.crawl_many(urls)
         # Update content field
         for item, content in zip(response_data["results"], contents):
             if content:  # only replace if crawl was successful
