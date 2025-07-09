@@ -10,7 +10,8 @@ from tenacity import (
     retry_if_exception_type,
     retry_if_result,
     after_log,
-    RetryError
+    RetryError,
+    stop_after_delay
 )
 import httpx 
 
@@ -23,10 +24,11 @@ class BaseCrawler(ABC):
         pass
 
 class AsyncWebCrawler:
-    def __init__(self, plugin: BaseCrawler, max_concurrency: int = 40, timeout: int = 5):
+    def __init__(self, plugin: BaseCrawler, max_concurrency: int = 40, timeout: int = 3):
         self.plugin = plugin
         self.semaphore = asyncio.Semaphore(max_concurrency)
         self.logger = get_logger()
+        self.timeout = timeout
 
     @retry(
         retry=(
@@ -34,13 +36,18 @@ class AsyncWebCrawler:
             retry_if_exception_type((IndexError, httpx.RequestError, httpx.TimeoutException, ValueError))
         ),
         wait=wait_exponential(multiplier=1, min=2, max=30),
-        stop=stop_after_attempt(3),
+        stop=( stop_after_attempt(1) | stop_after_delay(3) ),
         after=after_log(get_logger().logger, log_level=logging.WARNING),
         reraise=True
     )
     async def _crawl_one_with_retry(self, url: str) -> Optional[str]:
         self.logger.info(f"[AsyncWebCrawler] Crawling {url}")
-        result = await self.plugin.crawl(url)
+        try:
+            result = await asyncio.wait_for(self.plugin.crawl(url), timeout=self.timeout)
+        except asyncio.TimeoutError:
+            self.logger.warning(f"[AsyncWebCrawler] Timeout (>{self.timeout}s): {url}")
+            raise httpx.TimeoutException(f"Timeout while crawling {url}")
+        
         if result:
             self.logger.info(f"[AsyncWebCrawler] Success: {url}")
         else:

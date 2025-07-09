@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 
@@ -7,7 +7,7 @@ from web_scraping.crawl_services.crawl4ai_crawler import Crawl4aiCrawler
 from web_scraping.crawl_services.jina_crawler import JinaCrawler
 from web_scraping.utils import call_searxng_api
 from web_scraping.crawl_services.base import AsyncWebCrawler
-from web_scraping.models import ScrapingRequest, ScrapedItem, SearchRequest, SearchResponse
+from web_scraping.models import ScrapingRequest, ScrapedItem, SearchRequest, SearchResponse, TimerMiddleware
 
 app = FastAPI(title="Scraping Service")
 
@@ -18,6 +18,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(TimerMiddleware)
 
 plugin = TavilyCrawler()
 

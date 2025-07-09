@@ -1,11 +1,2 @@
-# Metric for benchmark
+# Metric for benchmark: Throughput, Accuracy, Cost, Speed, Reliability
 
-### Throughput
-
-### Accuracy
-
-### Cost
-
-### Speed
-
-### Reliability
