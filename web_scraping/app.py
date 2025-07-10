@@ -5,6 +5,7 @@ from typing import List
 from web_scraping.crawl_services.tavily_crawler import TavilyCrawler
 from web_scraping.crawl_services.crawl4ai_crawler import Crawl4aiCrawler
 from web_scraping.crawl_services.jina_crawler import JinaCrawler
+from web_scraping.crawl_services.bs4_crawler import BS4Crawler
 from web_scraping.utils import call_searxng_api
 from web_scraping.crawl_services.base import AsyncWebCrawler
 from web_scraping.models import ScrapingRequest, ScrapedItem, SearchRequest, SearchResponse, TimerMiddleware
@@ -21,7 +22,7 @@ app.add_middleware(
 
 app.add_middleware(TimerMiddleware)
 
-plugin = TavilyCrawler()
+plugin = BS4Crawler()
 
 @app.get("/health")
 async def health_check():
@@ -36,7 +37,7 @@ async def crawl_api(request: ScrapingRequest):
 @app.post("/search", response_model=SearchResponse)
 async def search_api(request: SearchRequest):
     # Call SearXNG API
-    response_data = call_searxng_api(request.query)
+    response_data = await call_searxng_api(request.query)
 
     # Extract URLs
     urls = [item["url"] for item in response_data.get("results", []) if "url" in item]

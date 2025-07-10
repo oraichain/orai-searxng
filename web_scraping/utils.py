@@ -4,6 +4,7 @@ from typing import List, Dict, Any
 from pathlib import Path
 import json
 import requests
+import httpx
 
 def execute_multithreading_functions(functions: List[Dict[str, Any]], timeout: int = 300) -> List[Any]:
     """
@@ -71,17 +72,8 @@ def save_to_json_file(data: Any, file_name: str) -> None:
     with open(path, "w") as f:
         json.dump(data, f)
 
-
-def call_searxng_api(query: str) -> Dict[str, Any]:
-    """
-    Call the searxng API to search for a query.
-
-    Args:
-        query: Query to search for.
-
-    Returns:
-        Raw JSON response from SearXNG
-    """
-    url = f"http://148.113.35.59:8666/search?format=json&q={query}"
-    response = requests.get(url)
+async def call_searxng_api(query: str) -> Dict[str, Any]:
+    url = f"http://148.113.35.59:8666/search?format=json&q={query}&engines=google"
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url)
     return response.json()

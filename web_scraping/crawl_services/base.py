@@ -36,7 +36,7 @@ class AsyncWebCrawler:
             retry_if_exception_type((IndexError, httpx.RequestError, httpx.TimeoutException, ValueError))
         ),
         wait=wait_exponential(multiplier=1, min=2, max=30),
-        stop=( stop_after_attempt(1) | stop_after_delay(3) ),
+        stop=( stop_after_attempt(2) | stop_after_delay(3) ),
         after=after_log(get_logger().logger, log_level=logging.WARNING),
         reraise=True
     )
