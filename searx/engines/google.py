@@ -30,6 +30,7 @@ from searx.network import get  # see https://github.com/searxng/searxng/issues/7
 from searx.exceptions import SearxEngineCaptchaException
 from searx.enginelib.traits import EngineTraits
 from searx.result_types import EngineResults
+from searx.engines.utils.extract_web import postprocess_web_search_results
 
 if TYPE_CHECKING:
     import logging
@@ -71,7 +72,6 @@ filter_mapping = {0: 'off', 1: 'medium', 2: 'high'}
 # Suggestions are links placed in a *card-section*, we extract only the text
 # from the links not the links itself.
 suggestion_xpath = '//div[contains(@class, "EIaa9b")]//a'
-
 
 _arcid_range = string.ascii_letters + string.digits + "_-"
 _arcid_random: tuple[str, int] | None = None
@@ -412,13 +412,14 @@ def response(resp) -> EngineResults:
                         thumbnail = data_image_map.get(img_id[0])
             else:
                 thumbnail = None
-
+            # if "https://www.droomdroom.com/price" not in url:
             results.append({'url': url, 'title': title, 'content': content, 'thumbnail': thumbnail})
 
         except Exception as e:  # pylint: disable=broad-except
             logger.error(e, exc_info=True)
             continue
 
+    results = postprocess_web_search_results(results)
     # parse suggestion
     for suggestion in eval_xpath_list(dom, suggestion_xpath):
         # append suggestion
