@@ -1006,6 +1006,7 @@ engines:
   - name: google
     engine: google
     shortcut: go
+    timeout: 5.0
     # additional_tests:
     #   android: *test_android
 

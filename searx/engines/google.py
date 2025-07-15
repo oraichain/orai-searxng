@@ -30,6 +30,7 @@ from searx.network import get  # see https://github.com/searxng/searxng/issues/7
 from searx.exceptions import SearxEngineCaptchaException
 from searx.enginelib.traits import EngineTraits
 from searx.result_types import EngineResults
+from searx.engines.utils.extract_web import postprocess_web_search_results
 
 if TYPE_CHECKING:
     import logging
@@ -418,7 +419,7 @@ def response(resp) -> EngineResults:
         except Exception as e:  # pylint: disable=broad-except
             logger.error(e, exc_info=True)
             continue
-
+    results = postprocess_web_search_results(results)
     # parse suggestion
     for suggestion in eval_xpath_list(dom, suggestion_xpath):
         # append suggestion
