@@ -139,6 +139,7 @@ from searx.utils import (
 )
 from searx.enginelib.traits import EngineTraits
 from searx.result_types import EngineResults
+from searx.engines.utils.extract_web import postprocess_web_search_results
 
 if TYPE_CHECKING:
     import logging
@@ -347,6 +348,8 @@ def _parse_search(resp) -> EngineResults:
                 item['thumbnail'] = eval_xpath_getindex(video_tag, './/img/@src', 0, default='')
 
         result_list.append(item)
+
+    result_list = postprocess_web_search_results(result_list)
 
     return result_list
 

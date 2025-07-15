@@ -541,6 +541,7 @@ engines:
     engine: bing
     shortcut: bi
     disabled: true
+    timeout: 5.0
 
   - name: bing images
     engine: bing_images
@@ -818,6 +819,7 @@ engines:
   - name: duckduckgo
     engine: duckduckgo
     shortcut: ddg
+    timeout: 5.0
 
   - name: duckduckgo images
     engine: duckduckgo_extra
@@ -2586,6 +2588,7 @@ engines:
     paging: true
     categories: [general, web]
     brave_category: search
+    timeout: 5.0
     # brave_spellcheck: true
 
   - name: brave.images
