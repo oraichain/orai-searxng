@@ -1,11 +1,27 @@
 FROM ghcr.io/searxng/base:searxng-builder AS builder
 
-COPY ./requirements.txt ./requirements.txt
+#COPY ./requirements.txt ./requirements.txt
 
-RUN --mount=type=cache,id=pip,target=/root/.cache/pip python -m venv ./venv \
- && . ./venv/bin/activate \
+#RUN --mount=type=cache,id=pip,target=/root/.cache/pip python -m venv ./venv \
+# && . ./venv/bin/activate \
+# && pip install -r requirements.txt \
+# && pip install "uwsgi~=2.0"
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      build-essential \
+      python3-dev \
+      linux-libc-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+# now venv + pip install will succeed
+COPY requirements.txt requirements.txt
+RUN python3 -m venv venv \
+ && . venv/bin/activate \
+ && pip install --upgrade pip \
  && pip install -r requirements.txt \
  && pip install "uwsgi~=2.0"
+
 
 COPY ./searx/ ./searx/
 
