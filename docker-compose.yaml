@@ -1,11 +1,14 @@
 services:
   searxng:
-    image: localhost/searxng/searxng:2025.6.18-506d5cd39
+    #image: localhost/searxng/searxng:2025.6.18-506d5cd39
+    image: orai-searxng:v1
     volumes:
       - /opt/orai-searxng/searxng:/etc/searxng
         #- /opt/orai-searxng/settings.yml:/etc/searxng/settings.yml
     ports:
       - 8666:8080
+    env_file:
+      - .env
     networks:
       - distilledstg_backend_net
     restart: unless-stopped
