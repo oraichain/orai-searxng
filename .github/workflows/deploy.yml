@@ -33,9 +33,10 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v4
         with:
-          context: ./container
+          context: .
           push: true
           tags: oraichain/orai-searxng:${{ github.ref_name }}.${{ env.SHORT_COMMIT }}
+          file: container/Dockerfile
 
       - name: Install GH CLI
         run: |
