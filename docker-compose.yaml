@@ -10,25 +10,13 @@ services:
     env_file:
       - .env
     networks:
-<<<<<<< HEAD
-      - distilledstg_backend_net
-=======
       - network
->>>>>>> 5e6adfea4f28aff93383e3f7cf63d7498071a93e
     restart: unless-stopped
-    env_file:
-      - .env
 
 networks:
-<<<<<<< HEAD
-  distilledstg_backend_net:
-    external: true
-
-=======
   network:
     external: true
     name: thesis-staging-network
->>>>>>> 5e6adfea4f28aff93383e3f7cf63d7498071a93e
 volumes:
   backend-dbstore:
   uploads:
