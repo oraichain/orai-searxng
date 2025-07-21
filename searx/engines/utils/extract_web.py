@@ -14,7 +14,8 @@ def postprocess_web_search_results(results):
         urls = [result.get('url') for result in results]
 
         content_extra = scrape_urls(urls).get("data", [])
-
+        if not content_extra:
+            return results
         map_url_content_extra = {
             item['url']: item.get("snippet", "")
             for item in content_extra
@@ -28,10 +29,15 @@ def postprocess_web_search_results(results):
 
 def scrape_urls(urls, endpoint=go_scraper_endpoint):
     payload = json.dumps({
-        "urls": urls
+        "urls": urls,
+        "timeout": 2.5,
     })
     headers = {
         'Content-Type': 'application/json'
     }
-    response = requests.post(endpoint, headers=headers, data=payload)
-    return response.json()
+    try:
+        response = requests.post(endpoint, headers=headers, data=payload)
+        return response.json()
+    except Exception as e:
+        logger.error(e, exc_info=True)
+        return {}

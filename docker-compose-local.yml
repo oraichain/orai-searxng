@@ -1,0 +1,21 @@
+services:
+  searxng:
+    image: localhost/searxng/searxng:latest
+    volumes:
+      - ./searxng:/etc/searxng:rw
+      - ./searx:/usr/local/searxng/searx
+    ports:
+      - 8666:8080
+    env_file:
+      - .env
+    networks:
+      - network
+    restart: unless-stopped
+
+networks:
+  network:
+    external: true
+    name: thesis-staging-network
+volumes:
+  backend-dbstore:
+  uploads:
