@@ -30,7 +30,7 @@ def postprocess_web_search_results(results):
 def scrape_urls(urls, endpoint=go_scraper_endpoint):
     payload = json.dumps({
         "urls": urls,
-        "timeout": 2.5,
+        "timeout": 3,
     })
     headers = {
         'Content-Type': 'application/json'
