@@ -39,7 +39,7 @@ from searx.utils import eval_xpath, extract_text, eval_xpath_list, eval_xpath_ge
 from searx.locales import language_tag, region_tag
 from searx.enginelib.traits import EngineTraits
 from searx.exceptions import SearxEngineAPIException
-from searx.engines.utils.extract_web import postprocess_web_search_results
+# from searx.engines.utils.extract_web import postprocess_web_search_results
 
 if TYPE_CHECKING:
     import logging
@@ -190,7 +190,7 @@ def response(resp):
             # measure.
             msg = f"Expected results to start at {expected_start}, but got results starting at {start}"
             raise SearxEngineAPIException(msg)
-    results = postprocess_web_search_results(results)
+    # results = postprocess_web_search_results(results)
     results.append({'number_of_results': result_len})
     return results
 
