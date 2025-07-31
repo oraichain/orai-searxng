@@ -30,7 +30,7 @@ from searx.enginelib.traits import EngineTraits
 from searx.enginelib import EngineCache
 from searx.exceptions import SearxEngineCaptchaException
 from searx.result_types import EngineResults
-from searx.engines.utils.extract_web import postprocess_web_search_results
+# from searx.engines.utils.extract_web import postprocess_web_search_results
 
 if typing.TYPE_CHECKING:
     import logging
@@ -377,7 +377,7 @@ def response(resp) -> EngineResults:
             eval_xpath_getindex(div_result, './/a[contains(@class, "result__snippet")]', 0, [])
         )
         results.append(item)
-    results = postprocess_web_search_results(results)
+    # results = postprocess_web_search_results(results)
 
     zero_click_info_xpath = '//div[@id="zero_click_abstract"]'
     zero_click = extract_text(eval_xpath(doc, zero_click_info_xpath)).strip()  # type: ignore
