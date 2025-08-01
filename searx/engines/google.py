@@ -419,6 +419,8 @@ def response(resp) -> EngineResults:
         except Exception as e:  # pylint: disable=broad-except
             logger.error(e, exc_info=True)
             continue
+    logger.info("Google engines: Found {} web url results!".format(len(results)))
+
     # results = postprocess_web_search_results(results)
     # parse suggestion
     for suggestion in eval_xpath_list(dom, suggestion_xpath):

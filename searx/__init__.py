@@ -16,7 +16,12 @@ LOG_FORMAT_DEBUG = '%(levelname)-7s %(name)-30.30s: %(message)s'
 
 # Production
 LOG_FORMAT_PROD = '%(asctime)-15s %(levelname)s:%(name)s: %(message)s'
-LOG_LEVEL_PROD = logging.WARNING
+
+log_level = os.environ.get('LOG_LEVEL', 'INFO')
+if log_level == 'INFO':
+    LOG_LEVEL_PROD = logging.INFO
+else:
+    LOG_LEVEL_PROD = logging.WARNING
 
 searx_dir = abspath(dirname(__file__))
 searx_parent_dir = abspath(dirname(dirname(__file__)))
