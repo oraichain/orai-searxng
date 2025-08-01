@@ -378,6 +378,7 @@ def response(resp) -> EngineResults:
         )
         results.append(item)
     # results = postprocess_web_search_results(results)
+    logger.info("DuckDuckGo engines: Found {} web url results!".format(len(results)))
 
     zero_click_info_xpath = '//div[@id="zero_click_abstract"]'
     zero_click = extract_text(eval_xpath(doc, zero_click_info_xpath)).strip()  # type: ignore

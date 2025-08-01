@@ -11,8 +11,9 @@ COPY requirements.txt ./requirements.txt
 RUN python3 -m venv ./venv \
  && . ./venv/bin/activate \
  && pip install --upgrade pip \
- && pip install -r requirements.txt \
- && pip install "uwsgi~=2.0"
+ && pip install uv \
+ && uv pip install -r requirements.txt \
+ && uv pip install "uwsgi~=2.0"
 
 
 

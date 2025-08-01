@@ -350,6 +350,7 @@ def _parse_search(resp) -> EngineResults:
         result_list.append(item)
 
     # result_list = postprocess_web_search_results(result_list)
+    logger.info("Brave engines: Found {} web url results!".format(len(result_list)))
 
     return result_list
 
